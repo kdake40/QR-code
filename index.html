@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    
+    #container {
+      padding: 20px;
+      background-color: rgb(148, 212, 240);
+      max-width: 500px;
+      margin: 10vw auto;
+      box-sizing: border-box;
+    }
+    #qr-code {
+      max-width: 100%;
+      margin: 20px auto;
+    }
+    #download-button {
+      margin-top: 20px;
+      display: none;
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .animation-shape {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+    }
+
+    /* Animation stars */
+    .animation-star {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+    }
+
+    .star {
+      background-color: gold;
+      animation: spin 5s linear infinite;
+    }
+
+    .star2 {
+      background-color: orange;
+      animation: spin 3s linear infinite;
+    }
+
+    .star3 {
+      background-color: pink;
+      animation: spin 7s linear infinite;
+    }
+    .circle {
+      background-color: blue;
+      border-radius: 50%;
+      animation: spin 4s linear infinite;
+    }
+
+    .square {
+      background-color: green;
+      animation: spin 6s linear infinite;
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid red;
+      animation: spin 7s linear infinite;
+    }
+
+    .diamond {
+      width: 0;
+      height: 0;
+      margin: 10px;
+      position: relative;
+      animation: spin 6s linear infinite;
+    }
+    .diamond:before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      background-color: purple;
+      position: absolute;
+      top: -20px;
+      left: -10px;
+      transform: rotate(45deg);
+    }
+
+    .cross {
+      width: 20px;
+      height: 2px;
+      background-color: red;
+      position: absolute;
+      animation: spin 4s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h1>QR Code Generator</h1>
+    <input type="text" id="text-input" placeholder="Enter text or URL">
+    <button id="generate-button">Generate QR Code</button>
+    <div id="qr-code"></div>
+    <a id="download-link" download="qrcode.png">
+      <button id="download-button">Download QR Code</button>
+    </a>
+  </div>
+  <div class="animation-shape star" style="top: 20%; left: 30%;"></div>
+  <div class="animation-shape star2" style="top: 50%; left: 60%;"></div>
+  <div class="animation-shape circle" style="top: 70%; left: 20%;"></div>
+  <div class="animation-shape square" style="top: 40%; left: 70%;"></div>
+  <div class="animation-shape triangle" style="top: 10%; left: 50%;"></div>
+  <div class="animation-shape diamond" style="top: 80%; left: 40%;"></div>
+  <div class="animation-shape cross" style="top: 60%; left: 50%;"></div>
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  <script>
+    const generateButton = document.getElementById('generate-button');
+    const qrCodeContainer = document.getElementById('qr-code');
+    const textInput = document.getElementById('text-input');
+    const downloadLink = document.getElementById('download-link');
+    const downloadButton = document.getElementById('download-button');
+
+    generateButton.addEventListener('click', () => {
+      const text = textInput.value;
+      if (text.trim() !== '') {
+        generateQRCode(text);
+      }
+    });
+
+    function generateQRCode(text) {
+      qrCodeContainer.innerHTML = ''; // Clear previous QR code
+      const qrcode = new QRCode(qrCodeContainer, {
+        text: text,
+      });
+
+      // Enable download button and set the QR code image as the href
+      downloadButton.style.display = 'block';
+
+      // Create a canvas to draw the SVG
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+
+      const svg = qrCodeContainer.querySelector('svg');
+      const svgString = new XMLSerializer().serializeToString(svg);
+      const img = new Image();
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+      img.onload = () => {
+        const containerWidth = qrCodeContainer.offsetWidth;
+        const scaleFactor = containerWidth / img.width;
+
+        canvas.width = containerWidth;
+        canvas.height = img.height * scaleFactor;
+        context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas to a data URL and set it as href for download
+        downloadLink.href = canvas.toDataURL('image/png');
+      };
+    }
+  </script>
+</body>
+</html>
